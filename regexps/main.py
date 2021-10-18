@@ -1,4 +1,5 @@
 from math import gcd
+from numpy import *
 
 
 class RegExpError(Exception):
@@ -51,21 +52,29 @@ def __plus(first_list, second_list, size_of_lists) -> list:
 
 
 def __multiply(first_list, second_list, size_of_lists) -> list:
+    first_list_fft = fft.fft(first_list, len(first_list) * 2, -1)
+    second_list_fft = fft.fft(second_list, len(second_list) * 2, -1)
+    fft_mul_result = []
+    for i in range(len(first_list_fft)):
+        fft_mul_result.append(first_list_fft[i] * second_list_fft[i])
+    mul_result = fft.ifft(fft_mul_result)
+    temp = [0 for i in range(len(mul_result))]
+    for i in range(len(mul_result)):
+        temp[i] = int(round_(mul_result[i].real))
     result_list = [0 for i in range(size_of_lists)]
-    for j in range(size_of_lists):
-        for k in range(size_of_lists):
-            if first_list[j] == 1 and second_list[k] == 1:
-                result_list[(j + k) % size_of_lists] = 1
+    for i in range(len(temp)):
+        if temp[i] != 0:
+            result_list[i % size_of_lists] = 1
     return result_list
 
 
-def __kleene_star(first_list, division_number) -> list:
-    result_list = [0 for j in range(division_number)]
-    general_gsd = division_number
-    for j in range(division_number):
+def __kleene_star(first_list, size_of_list) -> list:
+    result_list = [0 for j in range(size_of_list)]
+    general_gsd = size_of_list
+    for j in range(size_of_list):
         if first_list[j] == 1:
             general_gsd = gcd(general_gsd, j)
-    for j in range(division_number):
+    for j in range(size_of_list):
         if j % general_gsd == 0:
             result_list[j] = 1
     return result_list
